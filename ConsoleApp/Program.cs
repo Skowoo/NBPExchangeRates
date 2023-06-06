@@ -5,10 +5,9 @@ namespace ConsoleApp
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            FileDownloader fdwn = new FileDownloader();
-            XDocument requested = fdwn.GetFile("f");
+            XDocument requested = await FileDownloader.GetFile("c001z120102");
             Console.WriteLine(requested.ToString());
         }
     }

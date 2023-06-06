@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Reflection.Metadata.Ecma335;
 using System.Xml.Linq;
 
@@ -6,19 +7,15 @@ namespace ExchangeRatesLibrary
 {
     public class FileDownloader
     {
-        private static string directoryPath = "C:\\WINDOWS\\Temp\\ExchangeApp";
-
-        public FileDownloader() 
-        {
-            Directory.CreateDirectory(directoryPath);
-        }
-
-        public XDocument GetFile(string requestedName)
+        public static async Task<XDocument> GetFile(string requestedName)
         {
             string text;
-            using (var client = new WebClient())
+            using (HttpClient client = new())
             {
-                text = client.DownloadString("https://www.nbp.pl/kursy/xml/c001z120102.xml");
+                using (HttpResponseMessage response = await client.GetAsync($"https://www.nbp.pl/kursy/xml/{requestedName}.xml"))
+                    using (Stream streamToReadFrom = await response.Content.ReadAsStreamAsync())
+                        using (StreamReader reader = new StreamReader(streamToReadFrom))
+                            text = reader.ReadToEnd();
             }
             return XDocument.Parse(text);
         }
