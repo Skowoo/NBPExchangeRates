@@ -8,7 +8,11 @@ namespace ConsoleApp
         static async Task Main(string[] args)
         {
             XDocument requested = await FileDownloader.GetFile("c001z120102");
-            Console.WriteLine(requested.ToString());
+            //Console.WriteLine(requested.ToString());
+            List<string> list = await FileDownloader.GetFileNames(DateTime.Now, DateTime.Now);
+
+            foreach (string name in list)
+                Console.WriteLine(name);
         }
     }
 }
