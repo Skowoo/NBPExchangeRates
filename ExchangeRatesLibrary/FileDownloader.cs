@@ -24,30 +24,50 @@ namespace ExchangeRatesLibrary
         {
             List<string> fileNames = new ();
 
-            if (startDate < new DateTime(2000, 1, 1) || endDate > DateTime.Now)
+            //Time period corectness check
+            if (startDate < new DateTime(2000, 1, 1) || endDate > DateTime.Now || startDate > endDate)
                 throw new ArgumentOutOfRangeException("Date out of source range!");
 
-            int currentYear = Int32.Parse(DateTime.Now.Year.ToString().Remove(0, 2));
-            int startYear = Int32.Parse(startDate.Year.ToString().Remove(0, 2));
-            int startMonth = startDate.Month;
-            int startDay = startDate.Day;
-            int endYear = Int32.Parse(endDate.Year.ToString().Remove(0, 2));
-            int endMonth = endDate.Month;
-            int endDay = endDate.Day;
-
-            string dirFileName = "";
-
-            string text;
-            using (HttpClient client = new())
+            //Determine how many dir files should be checked
+            List<string> yearsToDownload = new();
+            if (startDate.Year == endDate.Year && startDate.Year == DateTime.Now.Year) //Single year (current)
             {
-                using (HttpResponseMessage response = await client.GetAsync($"https://static.nbp.pl/dane/kursy/xml/dir{dirFileName}.txt"))
-                using (Stream streamToReadFrom = await response.Content.ReadAsStreamAsync())
-                using (StreamReader reader = new StreamReader(streamToReadFrom))
-                    text = reader.ReadToEnd();
+                yearsToDownload.Add("");
+            }
+            else if (startDate.Year == endDate.Year && startDate.Year != DateTime.Now.Year) //Single year in past
+            {
+                yearsToDownload.Add(startDate.Year.ToString());
+            }                
+            else if (startDate.Year != endDate.Year && endDate.Year == DateTime.Now.Year) // Multiple years till now
+            {
+                for (int i = 0; i < endDate.Year - startDate.Year; i++)
+                    yearsToDownload.Add((startDate.Year + i).ToString());
+
+                yearsToDownload.Add(""); //Add empty string for current year
+            }
+            else if (startDate.Year != endDate.Year && endDate.Year != DateTime.Now.Year) // Multiple years in past
+            {
+                for (int i = 0; i <= endDate.Year - startDate.Year; i++)
+                    yearsToDownload.Add((startDate.Year + i).ToString());
             }
 
+            //Create string of demanded files names in new lines
+            string text = "";
+            foreach (string year in yearsToDownload)
+            {
+                using (HttpClient client = new())
+                {
+                    using (HttpResponseMessage response = await client.GetAsync($"https://static.nbp.pl/dane/kursy/xml/dir{year}.txt"))
+                    using (Stream streamToReadFrom = await response.Content.ReadAsStreamAsync())
+                    using (StreamReader reader = new StreamReader(streamToReadFrom))
+                        text += reader.ReadToEnd();
+                }
+            }
+
+            //Split source string by new lines
             string[] separatedFileNames = text.Split(Environment.NewLine);
 
+            //Add to output lists ONLY file names which starts from C
             foreach (string fileName in separatedFileNames)
                 if (fileName[0] == 'c')
                     fileNames.Add(fileName);
