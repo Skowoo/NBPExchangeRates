@@ -7,7 +7,8 @@ namespace ConsoleApp
     {
         static async Task Main(string[] args)
         {
-            Dictionary<DateTime, Tuple<double, double>> data = await DataObtainer.GetData(DateTime.Parse("2023-05-15"), new DateTime(2023, 05, 19), "GBP");
+            string result = await ProcessData.GetCurrencyInfoString(DateTime.Parse("2022-05-15"), new DateTime(2022, 05, 25), "GBP", true);
+            Console.WriteLine("\n" + result);
         }
     }
 }
