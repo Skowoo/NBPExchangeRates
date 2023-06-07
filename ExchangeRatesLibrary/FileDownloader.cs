@@ -8,6 +8,8 @@ namespace ExchangeRatesLibrary
 {
     public static class FileDownloader
     {
+        private const int daysToDownloadOffset = 5;
+
         public static async Task<string> GetData(DateTime startDate, DateTime endDate, string currency, bool detailed = false)
         {
             StringBuilder output = new();
@@ -20,9 +22,9 @@ namespace ExchangeRatesLibrary
 
             foreach (var document in documentList)
             {
-                DateTime date = DateTime.Parse(document.Descendants("data_notowania").Single().Value);
+                DateTime listingDate = DateTime.Parse(document.Descendants("data_notowania").Single().Value);
 
-                if (date.Date < startDate.Date || date.Date > endDate.Date) continue;
+                if (listingDate.Date < startDate.Date || listingDate.Date > endDate.Date) continue;
 
                 double buyValue = Double.Parse(
                         document.Descendants("pozycja")
@@ -34,11 +36,11 @@ namespace ExchangeRatesLibrary
                         .Single(poz => poz.Element("kod_waluty").Value == currency.ToUpper())
                         .Element("kurs_sprzedazy").Value);
                 
-                    sellValues.Add(sellValue, date);
-                    buyValues.Add(buyValue, date);
+                    sellValues.Add(sellValue, listingDate);
+                    buyValues.Add(buyValue, listingDate);
 
                     if (detailed)
-                        output.AppendLine($"Data: {date.ToString()}, kurs kupna: {buyValue:0.00}, kurs sprzedaży: {sellValue:0.00}");
+                        output.AppendLine($"Data: {listingDate.ToString()}, kurs kupna: {buyValue:0.00}, kurs sprzedaży: {sellValue:0.00}");
             }
             return output.ToString();
         }
@@ -71,31 +73,40 @@ namespace ExchangeRatesLibrary
         {
             List<string> fileNames = new ();
 
+            DateTime firstFileDate = new DateTime(2002, 1, 1).Date;
+            DateTime currentDate = DateTime.Now.Date;
+
             //Time period corectness check
-            if (startDate < new DateTime(2002, 1, 1) || endDate > DateTime.Now || startDate > endDate)
+            if (startDate < firstFileDate || endDate > currentDate || startDate > endDate)
                 throw new ArgumentOutOfRangeException("Date out of source range!");
+
+            //Define dates for file names to be listed
+            DateTime startDownloadDate = startDate.AddDays(-daysToDownloadOffset);
+            if (startDownloadDate < firstFileDate) startDownloadDate = startDate;
+            DateTime endDownloadDate = endDate.AddDays(daysToDownloadOffset);
+            if (endDownloadDate > currentDate) endDownloadDate = currentDate;
 
             //Determine how many dir files should be checked
             List<string> yearsToDownload = new();
-            if (startDate.Year == endDate.Year && startDate.Year == DateTime.Now.Year) //Single year (current)
+            if (startDownloadDate.Year == endDownloadDate.Year && startDownloadDate.Year == DateTime.Now.Year) //Single year (current)
             {
                 yearsToDownload.Add("");
             }
-            else if (startDate.Year == endDate.Year && startDate.Year != DateTime.Now.Year) //Single year in past
+            else if (startDownloadDate.Year == endDownloadDate.Year && startDownloadDate.Year != DateTime.Now.Year) //Single year in past
             {
-                yearsToDownload.Add(startDate.Year.ToString());
+                yearsToDownload.Add(startDownloadDate.Year.ToString());
             }                
-            else if (startDate.Year != endDate.Year && endDate.Year == DateTime.Now.Year) // Multiple years till now
+            else if (startDownloadDate.Year != endDownloadDate.Year && endDownloadDate.Year == DateTime.Now.Year) // Multiple years till now
             {
-                for (int i = 0; i < endDate.Year - startDate.Year; i++)
-                    yearsToDownload.Add((startDate.Year + i).ToString());
+                for (int i = 0; i < endDownloadDate.Year - startDownloadDate.Year; i++)
+                    yearsToDownload.Add((startDownloadDate.Year + i).ToString());
 
                 yearsToDownload.Add(""); //Add empty string for current year
             }
-            else if (startDate.Year != endDate.Year && endDate.Year != DateTime.Now.Year) // Multiple years in past
+            else if (startDownloadDate.Year != endDownloadDate.Year && endDownloadDate.Year != DateTime.Now.Year) // Multiple years in past
             {
-                for (int i = 0; i <= endDate.Year - startDate.Year; i++)
-                    yearsToDownload.Add((startDate.Year + i).ToString());
+                for (int i = 0; i <= endDownloadDate.Year - startDownloadDate.Year; i++)
+                    yearsToDownload.Add((startDownloadDate.Year + i).ToString());
             }
 
             //Create string of demanded files names in new lines
@@ -119,8 +130,12 @@ namespace ExchangeRatesLibrary
             {
                 DateTime fileDate = DateTime.Parse($"20{fileName.Substring(5 , 2 )}-{fileName.Substring(7, 2)}-{fileName.Substring(9, 2)}");
                 if (fileName[0] == 'c')
-                    if (startDate.Date <= fileDate.Date && fileDate.Date <= endDate.Date)
+                    if (startDownloadDate.Date <= fileDate.Date && fileDate.Date <= endDownloadDate.Date)
+                    {
                         fileNames.Add(fileName.Trim());
+                        await Console.Out.WriteLineAsync(fileName);
+                    }
+                        
             }
 
             return fileNames;
