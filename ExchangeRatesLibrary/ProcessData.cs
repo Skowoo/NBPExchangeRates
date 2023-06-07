@@ -33,8 +33,7 @@ namespace ExchangeRatesLibrary
                 }
                 else if (Math.Abs(tempResult) == tempDifferenceAbsoluteValue)
                     biggestBuyExchangeDifferenceDates.Add(data.ElementAt(i).Key);
-            }
-            
+            }            
 
             double mediumSellPrice = data.Values.Average(x => x.Item2);
             double maxSellPrice = data.Values.Max(x => x.Item2);
@@ -90,17 +89,17 @@ namespace ExchangeRatesLibrary
             return output.ToString();
         }
 
-        private static double StdDev(IEnumerable<double> values)
+        private static double StdDev(IEnumerable<double> input)
         {
-            double ret = 0;
-            int count = values.Count();
+            double output = 0;
+            int count = input.Count();
             if (count > 1)
             {
-                double avg = values.Average();
-                double sum = values.Sum(d => (d - avg) * (d - avg));
-                ret = Math.Sqrt(sum / count);
+                double avg = input.Average();
+                double sum = input.Sum(d => (d - avg) * (d - avg));
+                output = Math.Sqrt(sum / count);
             }
-            return ret;
+            return output;
         }
     }
 }
