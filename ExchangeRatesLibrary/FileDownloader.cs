@@ -25,7 +25,7 @@ namespace ExchangeRatesLibrary
             List<string> fileNames = new ();
 
             //Time period corectness check
-            if (startDate < new DateTime(2000, 1, 1) || endDate > DateTime.Now || startDate > endDate)
+            if (startDate < new DateTime(2002, 1, 1) || endDate > DateTime.Now || startDate > endDate)
                 throw new ArgumentOutOfRangeException("Date out of source range!");
 
             //Determine how many dir files should be checked
@@ -65,12 +65,16 @@ namespace ExchangeRatesLibrary
             }
 
             //Split source string by new lines
-            string[] separatedFileNames = text.Split(Environment.NewLine);
+            string[] separatedFileNames = text.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
 
-            //Add to output lists ONLY file names which starts from C
+            //Add to output lists ONLY file names which starts from C and are in requested time period
             foreach (string fileName in separatedFileNames)
+            {
+                DateTime fileDate = DateTime.Parse($"20{fileName[5]}{fileName[6]}-{fileName[7]}{fileName[8]}-{fileName[9]}{fileName[10]}"); //c001z180102
                 if (fileName[0] == 'c')
-                    fileNames.Add(fileName);
+                    if (fileDate > startDate && fileDate < endDate)
+                        fileNames.Add(fileName);
+            }
 
             return fileNames;
         }
