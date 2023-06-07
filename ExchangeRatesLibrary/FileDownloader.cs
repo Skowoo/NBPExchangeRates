@@ -7,7 +7,18 @@ namespace ExchangeRatesLibrary
 {
     public static class FileDownloader
     {
-        public static async Task<XDocument> GetFile(string requestedName)
+        public static async Task<List<XDocument>> GetFilesFromPeriod(DateTime startDate, DateTime endDate)
+        {
+            List<XDocument> outputList = new();
+
+            List<string> documentNames = await GetFileNames(startDate, endDate);
+            foreach (string documentName in documentNames)
+                outputList.Add(await GetFile(documentName));
+
+            return outputList;
+        }
+
+        private static async Task<XDocument> GetFile(string requestedName)
         {
             string text;
             using (HttpClient client = new())
@@ -20,7 +31,7 @@ namespace ExchangeRatesLibrary
             return XDocument.Parse(text);
         }
 
-        public static async Task<List<string>> GetFileNames(DateTime startDate, DateTime endDate)
+        private static async Task<List<string>> GetFileNames(DateTime startDate, DateTime endDate)
         {
             List<string> fileNames = new ();
 
@@ -73,7 +84,7 @@ namespace ExchangeRatesLibrary
                 DateTime fileDate = DateTime.Parse($"20{fileName[5]}{fileName[6]}-{fileName[7]}{fileName[8]}-{fileName[9]}{fileName[10]}"); //c001z180102
                 if (fileName[0] == 'c')
                     if (fileDate > startDate && fileDate < endDate)
-                        fileNames.Add(fileName);
+                        fileNames.Add(fileName.Trim());
             }
 
             return fileNames;
