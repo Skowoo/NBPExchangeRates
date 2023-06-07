@@ -1,13 +1,48 @@
 ﻿using System;
 using System.Net;
 using System.Reflection.Metadata.Ecma335;
+using System.Text;
 using System.Xml.Linq;
 
 namespace ExchangeRatesLibrary
 {
     public static class FileDownloader
     {
-        public static async Task<List<XDocument>> GetFilesFromPeriod(DateTime startDate, DateTime endDate)
+        public static async Task<string> GetData(DateTime startDate, DateTime endDate, string currency)
+        {
+            StringBuilder output = new();
+
+            var documentList = await GetFilesFromPeriod(startDate, endDate);
+
+            Dictionary<double, DateOnly> sellValues = new();
+            Dictionary<double, DateOnly> buyValues = new();
+
+            foreach ( var document in documentList )
+            {
+                double buyValue = Double.Parse(
+                    document.Descendants("pozycja")
+                    .Where(poz => poz.Element("kod_waluty").Value == currency.ToUpper())
+                    .Single()
+                    .Element("kurs_kupna").Value);
+
+                double sellValue = Double.Parse(
+                    document.Descendants("pozycja")
+                    .Where(poz => poz.Element("kod_waluty").Value == currency.ToUpper())
+                    .Single()
+                    .Element("kurs_sprzedazy").Value);
+
+                DateOnly date = DateOnly.Parse(document.Descendants("data_notowania").Single().Value);
+
+                sellValues.Add(sellValue, date);
+                buyValues.Add(buyValue, date);
+
+                output.AppendLine($"Data: {date.ToString()}, kurs kupna: {buyValue:0.00}, kurs sprzedaży: {sellValue:0.00}");
+            }
+
+            return output.ToString();
+        }
+
+        private static async Task<List<XDocument>> GetFilesFromPeriod(DateTime startDate, DateTime endDate)
         {
             List<XDocument> outputList = new();
 

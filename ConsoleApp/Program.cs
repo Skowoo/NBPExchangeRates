@@ -7,7 +7,8 @@ namespace ConsoleApp
     {
         static async Task Main(string[] args)
         {
-            List<XDocument> data = await FileDownloader.GetFilesFromPeriod(DateTime.Parse("2018-09-11"), new DateTime(2018, 11, 19));
+            string data = await FileDownloader.GetData(DateTime.Parse("2018-11-12"), new DateTime(2018, 11, 19), "GBP");
+            await Console.Out.WriteLineAsync(data);
         }
     }
 }
