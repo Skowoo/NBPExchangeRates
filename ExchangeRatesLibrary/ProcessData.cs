@@ -23,11 +23,11 @@ namespace ExchangeRatesLibrary
             double tempDifferenceAbsoluteValue = 0;
             for (int i = 1; i < data.Keys.Count(); i++)
             {
-                double tempResult = data.ElementAt(i).Value.Item1 - data.ElementAt(i - 1).Value.Item1;
+                double tempResult = Math.Round(data.ElementAt(i).Value.Item1 - data.ElementAt(i - 1).Value.Item1, 4);
                 if (Math.Abs(tempResult) > tempDifferenceAbsoluteValue)
                 {
                     biggestBuyExchangeDifferenceDates.Clear();
-                    biggestBuyExchangeDifference = Math.Round(tempResult, 3);
+                    biggestBuyExchangeDifference = tempResult;
                     tempDifferenceAbsoluteValue = Math.Abs(tempResult);
                     biggestBuyExchangeDifferenceDates.Add(data.ElementAt(i).Key);
                 }
@@ -45,16 +45,16 @@ namespace ExchangeRatesLibrary
             tempDifferenceAbsoluteValue = 0;
             for (int i = 1; i < data.Keys.Count(); i++)
             {
-                double tempResult = data.ElementAt(i).Value.Item2 - data.ElementAt(i - 1).Value.Item2;
+                double tempResult = Math.Round(data.ElementAt(i).Value.Item2 - data.ElementAt(i - 1).Value.Item2, 4);
                 if (Math.Abs(tempResult) > tempDifferenceAbsoluteValue)
                 {
                     biggestSellExchangeDifferenceDates.Clear();
-                    biggestSellExchangeDifference = Math.Round(tempResult, 3);
+                    biggestSellExchangeDifference = tempResult;
                     tempDifferenceAbsoluteValue = Math.Abs(tempResult);
                     biggestSellExchangeDifferenceDates.Add(data.ElementAt(i).Key);
                 }
                 else if (Math.Abs(tempResult) == tempDifferenceAbsoluteValue)
-                    biggestBuyExchangeDifferenceDates.Add(data.ElementAt(i).Key);
+                    biggestSellExchangeDifferenceDates.Add(data.ElementAt(i).Key);
             }
 
             //Create output string 
@@ -63,28 +63,28 @@ namespace ExchangeRatesLibrary
 
             if ( displayLog )
                 foreach ( var log in data )
-                    output.AppendLine($"Data: {log.Key:dd.MM.yyyy}. Kurs kupna: {log.Value.Item1:0.00}, kurs sprzedaży: {log.Value.Item2:0.00}");
+                    output.AppendLine($"Data: {log.Key:dd.MM.yyyy}. Kurs kupna: {log.Value.Item1:0.00} PLN, kurs sprzedaży: {log.Value.Item2:0.00} PLN");
 
             //Build part for buy prices----------------------------
-            output.AppendLine($"Średni kurs kupna w podanym przedziale czasowym: {mediumBuyPrice:0.00}");
-            output.AppendLine($"Maksymalny kurs kupna w podanym przedziale czasowym: {maxBuyPrice:0.00}");
-            output.AppendLine($"Minimalny kurs kupna w podanym przedziale czasowym: {minBuyPrice:0.00}");
-            output.AppendLine($"Odchylenie standardowe kursu kupna w podanym przedziale czasowym: {stdDevBuyPrice:0.00}");
+            output.AppendLine($"Średni kurs kupna w podanym przedziale czasowym: {mediumBuyPrice:0.00} PLN");
+            output.AppendLine($"Maksymalny kurs kupna w podanym przedziale czasowym: {maxBuyPrice:0.00} PLN");
+            output.AppendLine($"Minimalny kurs kupna w podanym przedziale czasowym: {minBuyPrice:0.00} PLN");
+            output.AppendLine($"Odchylenie standardowe kursu kupna w podanym przedziale czasowym: {stdDevBuyPrice:0.00} PLN");
             StringBuilder topBuyDifferenceDatesStringBuilder = new();
             foreach ( var date in biggestBuyExchangeDifferenceDates)
                 topBuyDifferenceDatesStringBuilder.Append(date.ToString("dd.MM.yyyy") + " ");
-            output.AppendLine($"Największa różnica kursowa w cenie kupna :{biggestBuyExchangeDifference}. Wystąpiła w dniach: {topBuyDifferenceDatesStringBuilder.ToString()}");
+            output.AppendLine($"Największa różnica kursowa w cenie kupna: {biggestBuyExchangeDifference} PLN. Wystąpiła w dniach: {topBuyDifferenceDatesStringBuilder.ToString()}");
             output.AppendLine();
 
             //Build part for sell prices----------------------------
-            output.AppendLine($"Średni kurs sprzedaży w podanym przedziale czasowym: {mediumSellPrice:0.00}");
-            output.AppendLine($"Maksymalny kurs sprzedaży w podanym przedziale czasowym: {maxSellPrice:0.00}");
-            output.AppendLine($"Minimalny kurs sprzedaży w podanym przedziale czasowym: {minSellPrice:0.00}");
-            output.AppendLine($"Odchylenie standardowe kursu sprzedaży w podanym przedziale czasowym: {stdDevSellPrice:0.00}");
+            output.AppendLine($"Średni kurs sprzedaży w podanym przedziale czasowym: {mediumSellPrice:0.00} PLN");
+            output.AppendLine($"Maksymalny kurs sprzedaży w podanym przedziale czasowym: {maxSellPrice:0.00} PLN");
+            output.AppendLine($"Minimalny kurs sprzedaży w podanym przedziale czasowym: {minSellPrice:0.00} PLN");
+            output.AppendLine($"Odchylenie standardowe kursu sprzedaży w podanym przedziale czasowym: {stdDevSellPrice:0.00} PLN");
             StringBuilder topSellDifferenceDatesStringBuilder = new();
             foreach (var date in biggestSellExchangeDifferenceDates)
                 topSellDifferenceDatesStringBuilder.Append(date.ToString("dd.MM.yyyy") + " ");
-            output.AppendLine($"Największa różnica kursowa w cenie sprzedaży :{biggestBuyExchangeDifference}. Wystąpiła w dniach: {topSellDifferenceDatesStringBuilder.ToString()}");
+            output.AppendLine($"Największa różnica kursowa w cenie sprzedaży: {biggestSellExchangeDifference} PLN. Wystąpiła w dniach: {topSellDifferenceDatesStringBuilder.ToString()}");
             output.AppendLine();
 
             return output.ToString();
@@ -96,13 +96,8 @@ namespace ExchangeRatesLibrary
             int count = values.Count();
             if (count > 1)
             {
-                //Compute the Average
                 double avg = values.Average();
-
-                //Perform the Sum of (value-avg)^2
                 double sum = values.Sum(d => (d - avg) * (d - avg));
-
-                //Put it all together
                 ret = Math.Sqrt(sum / count);
             }
             return ret;

@@ -66,7 +66,7 @@ namespace ExchangeRatesLibrary
             List<string> fileNames = new ();
 
             DateTime firstFileDate = new DateTime(2002, 1, 1).Date;
-            DateTime currentDate = DateTime.Now.Date;
+            DateTime currentDate = DateTime.Now;
 
             //Time period corectness check
             if (startDate < firstFileDate || endDate > currentDate || startDate > endDate)
@@ -123,11 +123,7 @@ namespace ExchangeRatesLibrary
                 DateTime fileDate = DateTime.Parse($"20{fileName.Substring(5 , 2 )}-{fileName.Substring(7, 2)}-{fileName.Substring(9, 2)}");
                 if (fileName[0] == 'c')
                     if (startDownloadDate.Date <= fileDate.Date && fileDate.Date <= endDownloadDate.Date)
-                    {
-                        fileNames.Add(fileName.Trim());
-                        await Console.Out.WriteLineAsync(fileName);
-                    }
-                        
+                        fileNames.Add(fileName.Trim());                        
             }
 
             return fileNames;
