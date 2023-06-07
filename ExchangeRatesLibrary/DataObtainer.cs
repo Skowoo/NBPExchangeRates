@@ -6,10 +6,18 @@ using System.Xml.Linq;
 
 namespace ExchangeRatesLibrary
 {
+    /// <summary> Class holds methods responsible for obtaining necessary data from NBP web service </summary>
     public static class DataObtainer
     {
         private const int daysToDownloadOffset = 5;
 
+        /// <summary>
+        /// Method returns data of specfied currency from specified period
+        /// </summary>
+        /// <param name="startDate"> DateTime - beggining of time period </param>
+        /// <param name="endDate"> DateTime - end of time period </param>
+        /// <param name="currency"> string - ISO 4217 code of currency </param>
+        /// <returns> CurencyInfo struct with calculated data from currency price in given time period </returns>
         public static async Task<CurrencyInfo> GetData(DateTime startDate, DateTime endDate, string currency)
         {
             var documentList = await GetFilesFromPeriod(startDate, endDate);
