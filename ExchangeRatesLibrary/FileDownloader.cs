@@ -8,37 +8,38 @@ namespace ExchangeRatesLibrary
 {
     public static class FileDownloader
     {
-        public static async Task<string> GetData(DateTime startDate, DateTime endDate, string currency)
+        public static async Task<string> GetData(DateTime startDate, DateTime endDate, string currency, bool detailed = false)
         {
             StringBuilder output = new();
+            output.AppendLine($"Kursy waluty {currency.ToUpper()} w okresie od {startDate:dd.MM.yyyy} do {endDate:dd.MM.yyyy}");
 
             var documentList = await GetFilesFromPeriod(startDate, endDate);
 
-            Dictionary<double, DateOnly> sellValues = new();
-            Dictionary<double, DateOnly> buyValues = new();
+            Dictionary<double, DateTime> sellValues = new();
+            Dictionary<double, DateTime> buyValues = new();
 
-            foreach ( var document in documentList )
+            foreach (var document in documentList)
             {
+                DateTime date = DateTime.Parse(document.Descendants("data_notowania").Single().Value);
+
+                if (date.Date < startDate.Date || date.Date > endDate.Date) continue;
+
                 double buyValue = Double.Parse(
-                    document.Descendants("pozycja")
-                    .Where(poz => poz.Element("kod_waluty").Value == currency.ToUpper())
-                    .Single()
-                    .Element("kurs_kupna").Value);
+                        document.Descendants("pozycja")
+                        .Single(poz => poz.Element("kod_waluty").Value == currency.ToUpper())
+                        .Element("kurs_kupna").Value);
 
-                double sellValue = Double.Parse(
-                    document.Descendants("pozycja")
-                    .Where(poz => poz.Element("kod_waluty").Value == currency.ToUpper())
-                    .Single()
-                    .Element("kurs_sprzedazy").Value);
+                    double sellValue = Double.Parse(
+                        document.Descendants("pozycja")
+                        .Single(poz => poz.Element("kod_waluty").Value == currency.ToUpper())
+                        .Element("kurs_sprzedazy").Value);
+                
+                    sellValues.Add(sellValue, date);
+                    buyValues.Add(buyValue, date);
 
-                DateOnly date = DateOnly.Parse(document.Descendants("data_notowania").Single().Value);
-
-                sellValues.Add(sellValue, date);
-                buyValues.Add(buyValue, date);
-
-                output.AppendLine($"Data: {date.ToString()}, kurs kupna: {buyValue:0.00}, kurs sprzedaży: {sellValue:0.00}");
+                    if (detailed)
+                        output.AppendLine($"Data: {date.ToString()}, kurs kupna: {buyValue:0.00}, kurs sprzedaży: {sellValue:0.00}");
             }
-
             return output.ToString();
         }
 
@@ -116,9 +117,9 @@ namespace ExchangeRatesLibrary
             //Add to output lists ONLY file names which starts from C and are in requested time period
             foreach (string fileName in separatedFileNames)
             {
-                DateTime fileDate = DateTime.Parse($"20{fileName[5]}{fileName[6]}-{fileName[7]}{fileName[8]}-{fileName[9]}{fileName[10]}"); //c001z180102
+                DateTime fileDate = DateTime.Parse($"20{fileName.Substring(5 , 2 )}-{fileName.Substring(7, 2)}-{fileName.Substring(9, 2)}");
                 if (fileName[0] == 'c')
-                    if (fileDate > startDate && fileDate < endDate)
+                    if (startDate.Date <= fileDate.Date && fileDate.Date <= endDate.Date)
                         fileNames.Add(fileName.Trim());
             }
 
