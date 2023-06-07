@@ -6,8 +6,14 @@ using System.Threading.Tasks;
 
 namespace ExchangeRatesLibrary
 {
+    /// <summary> Class holds methods responsible for providing representation of given data </summary>
     public class ProcessData
     {
+        /// <summary>
+        /// Method creates single string which describe given <i>CurrencyInfo</i>
+        /// </summary>
+        /// <param name="data"> <i>CurrencyInfo</i> struct </param>
+        /// <returns> <i>string</i> representation of given data </returns>
         public static string GetCurrencyInfoString(CurrencyInfo data)
         {
             //Create output string 
@@ -15,7 +21,7 @@ namespace ExchangeRatesLibrary
             output.AppendLine($"Dane dla waluty {data.currencyTag} w dniach od {data.periodStartDate:dd.MM.yyyy} do {data.periodEndDate:dd.MM.yyyy}");
 
             //Build buy prices
-            output.AppendLine($"Średni kurs kupna w podanym przedziale czasowym: {data.mediumBuyPrice:0.00} PLN");
+            output.AppendLine($"Średni kurs kupna w podanym przedziale czasowym: {data.averageBuyPrice:0.00} PLN");
             output.AppendLine($"Maksymalny kurs kupna w podanym przedziale czasowym: {data.maxBuyPrice:0.00} PLN");
             output.AppendLine($"Minimalny kurs kupna w podanym przedziale czasowym: {data.minBuyPrice:0.00} PLN");
             output.AppendLine($"Odchylenie standardowe kursu kupna w podanym przedziale czasowym: {data.stdDevBuyPrice:0.00} PLN");
@@ -26,7 +32,7 @@ namespace ExchangeRatesLibrary
             output.AppendLine();
 
             //Build sell prices
-            output.AppendLine($"Średni kurs sprzedaży w podanym przedziale czasowym: {data.mediumSellPrice:0.00} PLN");
+            output.AppendLine($"Średni kurs sprzedaży w podanym przedziale czasowym: {data.averageSellPrice:0.00} PLN");
             output.AppendLine($"Maksymalny kurs sprzedaży w podanym przedziale czasowym: {data.maxSellPrice:0.00} PLN");
             output.AppendLine($"Minimalny kurs sprzedaży w podanym przedziale czasowym: {data.minSellPrice:0.00} PLN");
             output.AppendLine($"Odchylenie standardowe kursu sprzedaży w podanym przedziale czasowym: {data.stdDevSellPrice:0.00} PLN");

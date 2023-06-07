@@ -42,7 +42,7 @@ namespace ConsoleApp
             }           
             catch (Exception ex)
             {
-                Console.BackgroundColor = ConsoleColor.Red;
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Wystąpił błąd!");
                 Console.WriteLine(ex.Message);
             }
