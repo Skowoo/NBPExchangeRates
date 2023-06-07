@@ -10,7 +10,7 @@ namespace ExchangeRatesLibrary
     {
         private const int daysToDownloadOffset = 5;
 
-        public static async Task<Dictionary<DateTime, Tuple<double, double>>> GetData(DateTime startDate, DateTime endDate, string currency)
+        public static async Task<CurrencyInfo> GetData(DateTime startDate, DateTime endDate, string currency)
         {
             var documentList = await GetFilesFromPeriod(startDate, endDate);
 
@@ -34,7 +34,7 @@ namespace ExchangeRatesLibrary
 
                 buySellValues.Add(listingDate, Tuple.Create(buyValue, sellValue));
             }
-            return buySellValues;
+            return new (buySellValues, currency);
         }
 
         private static async Task<List<XDocument>> GetFilesFromPeriod(DateTime startDate, DateTime endDate)

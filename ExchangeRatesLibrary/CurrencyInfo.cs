@@ -9,7 +9,7 @@ namespace ExchangeRatesLibrary
     public readonly struct CurrencyInfo
     {
         //General properties
-        public readonly string currencyName;
+        public readonly string currencyTag;
         public readonly DateTime periodStartDate;
         public readonly DateTime periodEndDate;
 
@@ -34,7 +34,7 @@ namespace ExchangeRatesLibrary
             if (inputData is null) throw new ArgumentNullException(nameof(inputData));
             if (inputData.Count < 1) throw new ArgumentOutOfRangeException(nameof(inputData));
 
-            this.currencyName = currencyName.ToUpper();
+            currencyTag = currencyName.ToUpper();
             periodStartDate = inputData.Keys.First();
             periodEndDate = inputData.Keys.Last();
 

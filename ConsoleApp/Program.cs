@@ -5,7 +5,7 @@ namespace ConsoleApp
 {
     internal class Program
     {
-        static async Task Main(string[] args)
+        static async Task Main()
         {            
         AskForCurrency:
             Console.WriteLine("Podaj kod waluty (w formacie ISO 4217)");
@@ -36,7 +36,8 @@ namespace ConsoleApp
 
             try
             {
-                string result = await ProcessData.GetCurrencyInfoString(startDate, endDate, currencyInput);
+                CurrencyInfo requestedCurrencyData = await DataObtainer.GetData(startDate, endDate, currencyInput);
+                string result = ProcessData.GetCurrencyInfoString(requestedCurrencyData);
                 Console.WriteLine(result);
             }           
             catch (Exception ex)
@@ -45,6 +46,8 @@ namespace ConsoleApp
                 Console.WriteLine("Wystąpił błąd!");
                 Console.WriteLine(ex.Message);
             }
+
+            Console.ResetColor();
         }
     }
 }
