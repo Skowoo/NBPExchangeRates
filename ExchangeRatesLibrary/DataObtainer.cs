@@ -6,19 +6,15 @@ using System.Xml.Linq;
 
 namespace ExchangeRatesLibrary
 {
-    public static class FileDownloader
+    public static class DataObtainer
     {
         private const int daysToDownloadOffset = 5;
 
-        public static async Task<string> GetData(DateTime startDate, DateTime endDate, string currency, bool detailed = false)
+        public static async Task<Dictionary<DateTime, Tuple<double, double>>> GetData(DateTime startDate, DateTime endDate, string currency)
         {
-            StringBuilder output = new();
-            output.AppendLine($"Kursy waluty {currency.ToUpper()} w okresie od {startDate:dd.MM.yyyy} do {endDate:dd.MM.yyyy}");
-
             var documentList = await GetFilesFromPeriod(startDate, endDate);
 
-            Dictionary<double, DateTime> sellValues = new();
-            Dictionary<double, DateTime> buyValues = new();
+            Dictionary<DateTime, Tuple<double, double>> buySellValues = new();
 
             foreach (var document in documentList)
             {
@@ -27,22 +23,18 @@ namespace ExchangeRatesLibrary
                 if (listingDate.Date < startDate.Date || listingDate.Date > endDate.Date) continue;
 
                 double buyValue = Double.Parse(
-                        document.Descendants("pozycja")
-                        .Single(poz => poz.Element("kod_waluty").Value == currency.ToUpper())
-                        .Element("kurs_kupna").Value);
+                    document.Descendants("pozycja")
+                    .Single(poz => poz.Element("kod_waluty").Value == currency.ToUpper())
+                    .Element("kurs_kupna").Value);
 
-                    double sellValue = Double.Parse(
-                        document.Descendants("pozycja")
-                        .Single(poz => poz.Element("kod_waluty").Value == currency.ToUpper())
-                        .Element("kurs_sprzedazy").Value);
-                
-                    sellValues.Add(sellValue, listingDate);
-                    buyValues.Add(buyValue, listingDate);
+                double sellValue = Double.Parse(
+                    document.Descendants("pozycja")
+                    .Single(poz => poz.Element("kod_waluty").Value == currency.ToUpper())
+                    .Element("kurs_sprzedazy").Value);
 
-                    if (detailed)
-                        output.AppendLine($"Data: {listingDate.ToString()}, kurs kupna: {buyValue:0.00}, kurs sprzedaży: {sellValue:0.00}");
+                buySellValues.Add(listingDate, Tuple.Create(buyValue, sellValue));
             }
-            return output.ToString();
+            return buySellValues;
         }
 
         private static async Task<List<XDocument>> GetFilesFromPeriod(DateTime startDate, DateTime endDate)
