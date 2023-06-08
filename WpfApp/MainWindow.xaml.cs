@@ -1,19 +1,9 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using ExchangeRatesLibrary;
+using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using ExchangeRatesLibrary;
 using WpfApp.Resources;
 
 namespace WpfApp
@@ -23,31 +13,52 @@ namespace WpfApp
     /// </summary>
     public partial class MainWindow : Window
     {
+        #region Properties
         DateTime? startDate;
         DateTime? endDate;
         string? currency;
         CurrencyInfo currencyInfo;
+        #endregion
 
         public MainWindow()
         {
             InitializeComponent();
-
             CurrenciesList.ItemsSource = Enum.GetValues(typeof(AviableCurrencies)).Cast<AviableCurrencies>();
-
             DataObtainer.FileDoneEvent += FileDoneEventHandler;
-
             SetInitialState();
         }
 
-        private void FileDoneEventHandler(object sender, DocumentDownloadedEvent e)
+        #region Control events handling
+
+        private void StartDateCalendar_SelectedDatesChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (LoadingGrid.Visibility == Visibility.Visible)
-            {
-                ProgressBar_Text.Text = $"Opracowano {e.filesDone} / {e.totalFilesToDownload} plików.";
-                ProgressBar.Maximum = e.totalFilesToDownload;
-                ProgressBar.Value = e.filesDone;
-            }
+            EndFirstBlackout.End = (DateTime)StartDateCalendar.SelectedDate;
+            startDate = StartDateCalendar.SelectedDate;
+            Mouse.Capture(null);
+            ManageDownloadButtonVisibility();
         }
+
+        private void EndDateCalendar_SelectedDatesChanged(object sender, SelectionChangedEventArgs e)
+        {
+            StartSecondBlackout.Start = (DateTime)EndDateCalendar.SelectedDate;
+            endDate = EndDateCalendar.SelectedDate;
+            Mouse.Capture(null);
+            ManageDownloadButtonVisibility();
+        }
+
+        private void CurrenciesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            currency = CurrenciesList.SelectedItem.ToString();
+            ManageDownloadButtonVisibility();
+        }
+
+        private void StartDownloadButton_Click(object sender, RoutedEventArgs e) => ObtainData();
+
+        private void NewQueryButton_Click(object sender, RoutedEventArgs e) => SetInitialState();
+
+        #endregion
+
+        #region Internal app methods
 
         private void SetInitialState()
         {
@@ -75,30 +86,14 @@ namespace WpfApp
             EndSecondBlackout.End = new DateTime(9999, 01, 01);
         }
 
-        private void StartDateCalendar_SelectedDatesChanged(object sender, SelectionChangedEventArgs e)
+        private void FileDoneEventHandler(object sender, DocumentDownloadedEvent e)
         {
-            EndFirstBlackout.End = (DateTime)StartDateCalendar.SelectedDate;
-            startDate = StartDateCalendar.SelectedDate;
-            ManageDownloadButtonVisibility();
-        }
-
-        private void EndDateCalendar_SelectedDatesChanged(object sender, SelectionChangedEventArgs e)
-        {
-            StartSecondBlackout.Start = (DateTime)EndDateCalendar.SelectedDate;
-            endDate = EndDateCalendar.SelectedDate;
-            ManageDownloadButtonVisibility();
-        }
-
-        private void CurrenciesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            currency = CurrenciesList.SelectedItem.ToString();
-            ManageDownloadButtonVisibility();
-        }
-
-        private void StartDownloadButton_Click(object sender, RoutedEventArgs e)
-        {
-            //MessageBox.Show($"Diagnostic Data:\nstartDate:  {startDate}\nendDate:  {endDate}\ncurrency:  {currency}");
-            ObtainData();
+            if (LoadingGrid.Visibility == Visibility.Visible)
+            {
+                ProgressBar_Text.Text = $"Opracowano {e.filesDone} / {e.totalFilesToDownload} plików.";
+                ProgressBar.Maximum = e.totalFilesToDownload;
+                ProgressBar.Value = e.filesDone;
+            }
         }
 
         private async void ObtainData()
@@ -108,7 +103,7 @@ namespace WpfApp
             try
             {
                 currencyInfo = await DataObtainer.GetData((DateTime)startDate, (DateTime)endDate, currency);
-            }    
+            }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
@@ -137,7 +132,7 @@ namespace WpfApp
             SellMaxDifference_TextBox.Text = $"{currencyInfo.biggestSellExchangeDifference:0.00} PLN";
 
             BuyPriceDatesTextBlock.Text = "Najwyższa różnica kursowa wsytąpiła w dniach:\n";
-            foreach ( DateTime item in currencyInfo.biggestBuyExchangeDifferenceDates )
+            foreach (DateTime item in currencyInfo.biggestBuyExchangeDifferenceDates)
                 BuyPriceDatesTextBlock.Text += $"{item:dd.MM.yyyy} \n";
 
             SellPriceDatesTextBlock.Text = "Najwyższa różnica kursowa wsytąpiła w dniach:\n";
@@ -149,10 +144,10 @@ namespace WpfApp
         {
             if (startDate != null && endDate != null && currency != null)
                 StartDownloadButton.Visibility = Visibility.Visible;
-            else 
+            else
                 StartDownloadButton.Visibility = Visibility.Collapsed;
         }
 
-        private void NewQueryButton_Click(object sender, RoutedEventArgs e) => SetInitialState();
+        #endregion
     }
 }
