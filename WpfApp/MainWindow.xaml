@@ -5,8 +5,127 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp"
         mc:Ignorable="d"
+        ResizeMode="CanMinimize"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
 
+    <Window.Resources>
+
+        <Style x:Key="Label" TargetType="{x:Type Label}" BasedOn="{x:Null}">
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="Height" Value="23"/>
+        </Style>
+
+        <Style x:Key="CustTextBox" TargetType="{x:Type TextBox}" BasedOn="{x:Null}">
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="Width" Value="120"/>
+        </Style>
+
+    </Window.Resources>
+
+
+    <Grid>
+        <Grid x:Name="InputGrid"  HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Calendar x:Name="StartDateCalendar" HorizontalAlignment="Left" Margin="0,24,0,0" VerticalAlignment="Top" SelectedDatesChanged="StartDateCalendar_SelectedDatesChanged" >
+                <Calendar.BlackoutDates>
+                    <CalendarDateRange x:Name="StartFirstBlackout" Start="01.01.1000" End="01.01.2002" />
+                    <CalendarDateRange x:Name="StartSecondBlackout" Start="08.06.2023" End="01.01.9999" />
+                </Calendar.BlackoutDates>
+            </Calendar>
+
+            <Calendar x:Name="EndDateCalendar" HorizontalAlignment="Left" Margin="197,24,0,0" VerticalAlignment="Top" SelectedDatesChanged="EndDateCalendar_SelectedDatesChanged" >
+                <Calendar.BlackoutDates>
+                    <CalendarDateRange x:Name="EndFirstBlackout" Start="01.01.1900" End="01.01.2002" />
+                    <CalendarDateRange x:Name="EndSecondBlackout" Start="08.06.2023" End="01.01.9999" />
+                </Calendar.BlackoutDates>
+            </Calendar>
+            <ComboBox x:Name="CurrenciesList" HorizontalAlignment="Left" Margin="394,29,0,0" VerticalAlignment="Top" Width="120" Text="Waluta" SelectionChanged="CurrenciesList_SelectionChanged" />
+            <Button x:Name="StartDownloadButton" Content="Pobierz dane" HorizontalAlignment="Left" Margin="394,136,0,0" VerticalAlignment="Top" Height="51" Width="120" Click="StartDownloadButton_Click"/>
+            <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" TextAlignment="Center" Text="Początek przedziału czasowego:" VerticalAlignment="Top" Height="24" Width="179"/>
+            <TextBlock HorizontalAlignment="Left" Margin="197,0,0,0" TextWrapping="Wrap" TextAlignment="Center" Text="Koniec przedziału czasowego:" VerticalAlignment="Top" Height="24" Width="179"/>
+            <TextBlock HorizontalAlignment="Left" Margin="394,0,0,0" TextWrapping="Wrap" TextAlignment="Center" Text="Waluta:" VerticalAlignment="Top" Height="24" Width="120"/>
+        </Grid>
+        <Grid Name="LoadingGrid"  HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="142*"/>
+                <ColumnDefinition Width="53*"/>
+            </Grid.ColumnDefinitions>
+            <ProgressBar x:Name="ProgressBar" HorizontalAlignment="Left" Height="25" Margin="0,30,0,0" VerticalAlignment="Top" Width="780" RenderTransformOrigin="0.5,-0.836" Grid.ColumnSpan="2"/>
+            <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" TextAlignment="Center" Text="Poczekaj, dane są pobierane..." VerticalAlignment="Top" Height="25" Width="780" FontWeight="Bold" FontSize="16" Grid.ColumnSpan="2"/>
+        </Grid>
+
+        <Grid x:Name="ResultGrid" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Grid x:Name="buyPricePieceGrid" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="36,82,0,0"
+              Visibility="Visible" Background="LightGreen" Width="auto">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" MinWidth="300"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Label Content="Wartości dla ceny kupna:" FontWeight="Bold"/>
+
+            <Label Content="Średni kurs:"  Grid.Row="3" Style="{StaticResource Label}"/>
+            <TextBox x:Name="BuyAverage_TextBox" IsEnabled="False" Grid.Row="3" Style="{StaticResource CustTextBox}"/>
+
+            <Label Content="Najwyższy kurs:"  Grid.Row="4" Style="{StaticResource Label}"/>
+            <TextBox x:Name="BuyMax_TextBox" IsEnabled="False" Grid.Row="4" Style="{StaticResource CustTextBox}"/>
+
+            <Label Content="Najniższy kurs:"  Grid.Row="5" Style="{StaticResource Label}"/>
+            <TextBox x:Name="BuyMin_TextBox" IsEnabled="False" Grid.Row="5" Style="{StaticResource CustTextBox}"/>
+
+            <Label Content="Odchylenie standardowe:"  Grid.Row="6" Style="{StaticResource Label}"/>
+            <TextBox x:Name="BuyDev_TextBox" IsEnabled="False" Grid.Row="6" Style="{StaticResource CustTextBox}"/>
+
+            <Label Content="Najwyższa różnica kursowa:"  Grid.Row="7" Style="{StaticResource Label}"/>
+            <TextBox x:Name="BuyMaxDifference_TextBox" IsEnabled="False" Grid.Row="7" Style="{StaticResource CustTextBox}"/>
+        </Grid>
+        <Grid x:Name="SellPriceGrid" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="341,82,0,0"
+            Visibility="Visible" Background="LightCoral" Width="auto">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" MinWidth="300"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Label Content="Wartości dla ceny sprzedaży:" FontWeight="Bold"/>
+
+            <Label Content="Średni kurs:"  Grid.Row="3" Style="{StaticResource Label}"/>
+            <TextBox x:Name="SellAverage_TextBox" IsEnabled="False" Grid.Row="3" Style="{StaticResource CustTextBox}"/>
+
+            <Label Content="Najwyższy kurs:"  Grid.Row="4" Style="{StaticResource Label}"/>
+            <TextBox x:Name="SellMax_TextBox" IsEnabled="False" Grid.Row="4" Style="{StaticResource CustTextBox}"/>
+
+            <Label Content="Najniższy kurs:"  Grid.Row="5" Style="{StaticResource Label}"/>
+            <TextBox x:Name="SellMin_TextBox" IsEnabled="False" Grid.Row="5" Style="{StaticResource CustTextBox}"/>
+
+            <Label Content="Odchylenie standardowe:"  Grid.Row="6" Style="{StaticResource Label}"/>
+            <TextBox x:Name="SellDev_TextBox" IsEnabled="False" Grid.Row="6" Style="{StaticResource CustTextBox}"/>
+
+            <Label Content="Najwyższa różnica kursowa:"  Grid.Row="7" Style="{StaticResource Label}"/>
+            <TextBox x:Name="SellMaxDifference_TextBox" IsEnabled="False" Grid.Row="7" Style="{StaticResource CustTextBox}"/>
+        </Grid>
+        <TextBlock Name="ResultDescriptionBlock" TextAlignment="Center" Text="Dane za okres oddd.MM.yyyy do dd.MM.yyyy dla waluty: JGV" HorizontalAlignment="Left" Margin="36,47,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="30" Width="605" FontSize="18" FontWeight="Bold"/>
+        <TextBlock Name="BuyPriceDatesTextBlock" HorizontalAlignment="Left" Margin="36,273,0,0" TextAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Height="130" Width="300" FontWeight="Bold"/>
+            <TextBlock Name="SellPriceDatesTextBlock" HorizontalAlignment="Left" Margin="341,273,0,0" TextAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Height="130" Width="300" FontWeight="Bold"/>
+        </Grid>
     </Grid>
 </Window>
