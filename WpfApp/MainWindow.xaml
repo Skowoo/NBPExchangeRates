@@ -32,19 +32,18 @@
         <Grid x:Name="InputGrid"  HorizontalAlignment="Center" VerticalAlignment="Center">
             <Calendar x:Name="StartDateCalendar" HorizontalAlignment="Left" Margin="0,24,0,0" VerticalAlignment="Top" SelectedDatesChanged="StartDateCalendar_SelectedDatesChanged" >
                 <Calendar.BlackoutDates>
-                    <CalendarDateRange x:Name="StartFirstBlackout" Start="01.01.1000" End="01.01.2002" />
-                    <CalendarDateRange x:Name="StartSecondBlackout" Start="08.06.2023" End="01.01.9999" />
+                    <CalendarDateRange x:Name="StartFirstBlackout"/>
+                    <CalendarDateRange x:Name="StartSecondBlackout"/>
                 </Calendar.BlackoutDates>
             </Calendar>
-
             <Calendar x:Name="EndDateCalendar" HorizontalAlignment="Left" Margin="197,24,0,0" VerticalAlignment="Top" SelectedDatesChanged="EndDateCalendar_SelectedDatesChanged" >
                 <Calendar.BlackoutDates>
-                    <CalendarDateRange x:Name="EndFirstBlackout" Start="01.01.1900" End="01.01.2002" />
-                    <CalendarDateRange x:Name="EndSecondBlackout" Start="08.06.2023" End="01.01.9999" />
+                    <CalendarDateRange x:Name="EndFirstBlackout"/>
+                    <CalendarDateRange x:Name="EndSecondBlackout"/>
                 </Calendar.BlackoutDates>
             </Calendar>
             <ComboBox x:Name="CurrenciesList" HorizontalAlignment="Left" Margin="394,29,0,0" VerticalAlignment="Top" Width="120" Text="Waluta" SelectionChanged="CurrenciesList_SelectionChanged" />
-            <Button x:Name="StartDownloadButton" Content="Pobierz dane" HorizontalAlignment="Left" Margin="394,136,0,0" VerticalAlignment="Top" Height="51" Width="120" Click="StartDownloadButton_Click"/>
+            <Button x:Name="StartDownloadButton" Content="Pobierz dane" HorizontalAlignment="Left" Margin="394,136,0,0" VerticalAlignment="Top" Height="50" Width="120" Click="StartDownloadButton_Click"/>
             <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" TextAlignment="Center" Text="Początek przedziału czasowego:" VerticalAlignment="Top" Height="24" Width="179"/>
             <TextBlock HorizontalAlignment="Left" Margin="197,0,0,0" TextWrapping="Wrap" TextAlignment="Center" Text="Koniec przedziału czasowego:" VerticalAlignment="Top" Height="24" Width="179"/>
             <TextBlock HorizontalAlignment="Left" Margin="394,0,0,0" TextWrapping="Wrap" TextAlignment="Center" Text="Waluta:" VerticalAlignment="Top" Height="24" Width="120"/>
@@ -125,7 +124,8 @@
         </Grid>
         <TextBlock Name="ResultDescriptionBlock" TextAlignment="Center" Text="Dane za okres oddd.MM.yyyy do dd.MM.yyyy dla waluty: JGV" HorizontalAlignment="Left" Margin="36,47,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="30" Width="605" FontSize="18" FontWeight="Bold"/>
         <TextBlock Name="BuyPriceDatesTextBlock" HorizontalAlignment="Left" Margin="36,273,0,0" TextAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Height="130" Width="300" FontWeight="Bold"/>
-            <TextBlock Name="SellPriceDatesTextBlock" HorizontalAlignment="Left" Margin="341,273,0,0" TextAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Height="130" Width="300" FontWeight="Bold"/>
+        <TextBlock Name="SellPriceDatesTextBlock" HorizontalAlignment="Left" Margin="341,273,0,0" TextAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Height="130" Width="300" FontWeight="Bold"/>
+            <Button Name="NewQueryButton" Height="20" Width="120" Content="Nowe zapytanie" Margin="0,390,0,0" Click="NewQueryButton_Click"></Button>
         </Grid>
     </Grid>
 </Window>

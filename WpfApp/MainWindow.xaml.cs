@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -33,12 +34,31 @@ namespace WpfApp
 
             CurrenciesList.ItemsSource = Enum.GetValues(typeof(AviableCurrencies)).Cast<AviableCurrencies>();
 
+            SetInitialState();
+        }
+
+        private void SetInitialState()
+        {
             StartDownloadButton.Visibility = Visibility.Collapsed;
+
+            startDate = null;
+            endDate = null;
+            currency = null;
+
             LoadingGrid.Visibility = Visibility.Collapsed;
             ResultGrid.Visibility = Visibility.Collapsed;
+            InputGrid.Visibility = Visibility.Visible;
 
+
+
+            StartFirstBlackout.Start = new DateTime(1, 01, 01);
+            StartFirstBlackout.End = new DateTime(2002, 01, 01);
             StartSecondBlackout.Start = DateTime.Now;
+            StartSecondBlackout.End = new DateTime(9999, 01, 01);
+            EndFirstBlackout.Start = new DateTime(1, 01, 01);
+            EndFirstBlackout.End = new DateTime(2002, 01, 01);
             EndSecondBlackout.Start = DateTime.Now;
+            EndSecondBlackout.End = new DateTime(9999, 01, 01);
         }
 
         private void StartDateCalendar_SelectedDatesChanged(object sender, SelectionChangedEventArgs e)
@@ -71,7 +91,16 @@ namespace WpfApp
         {
             InputGrid.Visibility = Visibility.Collapsed;
             LoadingGrid.Visibility = Visibility.Visible;
-            currencyInfo = await DataObtainer.GetData((DateTime)startDate, (DateTime)endDate, currency);
+            try
+            {
+                currencyInfo = await DataObtainer.GetData((DateTime)startDate, (DateTime)endDate, currency);
+            }    
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                SetInitialState();
+                return;
+            }
             FillData();
             LoadingGrid.Visibility = Visibility.Collapsed;
             ResultGrid.Visibility = Visibility.Visible;
@@ -109,5 +138,7 @@ namespace WpfApp
             else 
                 StartDownloadButton.Visibility = Visibility.Collapsed;
         }
+
+        private void NewQueryButton_Click(object sender, RoutedEventArgs e) => SetInitialState();
     }
 }
