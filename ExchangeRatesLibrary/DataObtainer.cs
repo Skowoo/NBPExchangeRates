@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
@@ -10,6 +11,16 @@ namespace ExchangeRatesLibrary
     public static class DataObtainer
     {
         private const int daysToDownloadOffset = 5;
+
+        public static event EventHandler<DocumentDownloadedEvent> FileDoneEvent;
+
+        private static void RaiseFileDoneEvent(DocumentDownloadedEvent e)
+        {
+            EventHandler<DocumentDownloadedEvent> raiseEvent = FileDoneEvent;
+
+            if (raiseEvent != null)
+                raiseEvent(null, e);
+        }
 
         /// <summary>
         /// Method returns data of specfied currency from specified period
@@ -50,9 +61,16 @@ namespace ExchangeRatesLibrary
             List<XDocument> outputList = new();
 
             List<string> documentNames = await GetFileNames(startDate, endDate);
-            foreach (string documentName in documentNames)
-                outputList.Add(await GetFile(documentName));
 
+            int documentsToDownloadCount = documentNames.Count;
+            int documentsDone = 0;
+
+            foreach (string documentName in documentNames)
+            {
+                outputList.Add(await GetFile(documentName));
+                documentsDone++;
+                RaiseFileDoneEvent(new DocumentDownloadedEvent(documentsDone, documentsToDownloadCount));
+            }
             return outputList;
         }
 

@@ -34,7 +34,19 @@ namespace WpfApp
 
             CurrenciesList.ItemsSource = Enum.GetValues(typeof(AviableCurrencies)).Cast<AviableCurrencies>();
 
+            DataObtainer.FileDoneEvent += FileDoneEventHandler;
+
             SetInitialState();
+        }
+
+        private void FileDoneEventHandler(object sender, DocumentDownloadedEvent e)
+        {
+            if (LoadingGrid.Visibility == Visibility.Visible)
+            {
+                ProgressBar_Text.Text = $"Opracowano {e.filesDone} / {e.totalFilesToDownload} plików.";
+                ProgressBar.Maximum = e.totalFilesToDownload;
+                ProgressBar.Value = e.filesDone;
+            }
         }
 
         private void SetInitialState()
@@ -48,6 +60,10 @@ namespace WpfApp
             LoadingGrid.Visibility = Visibility.Collapsed;
             ResultGrid.Visibility = Visibility.Collapsed;
             InputGrid.Visibility = Visibility.Visible;
+
+            CurrenciesList.SelectedIndex = 0;
+            ProgressBar.Value = 0;
+            ProgressBar_Text.Text = "";
 
             StartFirstBlackout.Start = new DateTime(1, 01, 01);
             StartFirstBlackout.End = new DateTime(2002, 01, 01);
