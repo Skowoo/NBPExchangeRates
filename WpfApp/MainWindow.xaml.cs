@@ -49,8 +49,6 @@ namespace WpfApp
             ResultGrid.Visibility = Visibility.Collapsed;
             InputGrid.Visibility = Visibility.Visible;
 
-
-
             StartFirstBlackout.Start = new DateTime(1, 01, 01);
             StartFirstBlackout.End = new DateTime(2002, 01, 01);
             StartSecondBlackout.Start = DateTime.Now;
