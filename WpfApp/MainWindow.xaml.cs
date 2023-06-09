@@ -28,22 +28,28 @@ namespace WpfApp
             SetInitialState();
         }
 
-        #region Control events handling
+        #region Control events
 
         private void StartDateCalendar_SelectedDatesChanged(object sender, SelectionChangedEventArgs e)
         {
-            EndFirstBlackout.End = (DateTime)StartDateCalendar.SelectedDate;
-            startDate = StartDateCalendar.SelectedDate;
-            Mouse.Capture(null);
-            ManageDownloadButtonVisibility();
+            if (StartDateCalendar.SelectedDate != null)
+            {
+                EndFirstBlackout.End = (DateTime)StartDateCalendar.SelectedDate;
+                startDate = StartDateCalendar.SelectedDate;
+                Mouse.Capture(null);
+                ManageDownloadButtonVisibility();
+            }
         }
 
         private void EndDateCalendar_SelectedDatesChanged(object sender, SelectionChangedEventArgs e)
         {
-            StartSecondBlackout.Start = (DateTime)EndDateCalendar.SelectedDate;
-            endDate = EndDateCalendar.SelectedDate;
-            Mouse.Capture(null);
-            ManageDownloadButtonVisibility();
+            if (EndDateCalendar.SelectedDate != null)
+            {
+                StartSecondBlackout.Start = (DateTime)EndDateCalendar.SelectedDate;
+                endDate = EndDateCalendar.SelectedDate;
+                Mouse.Capture(null);
+                ManageDownloadButtonVisibility();
+            }
         }
 
         private void CurrenciesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -58,7 +64,7 @@ namespace WpfApp
 
         #endregion
 
-        #region Internal app methods
+        #region Internal methods
 
         private void SetInitialState()
         {
@@ -76,6 +82,10 @@ namespace WpfApp
             ProgressBar.Value = 0;
             ProgressBar_Text.Text = "";
 
+            StartDateCalendar.DisplayDate = DateTime.Now;
+            StartDateCalendar.SelectedDate = null;
+            EndDateCalendar.DisplayDate = DateTime.Now;
+            EndDateCalendar.SelectedDate = null;
             StartFirstBlackout.Start = new DateTime(1, 01, 01);
             StartFirstBlackout.End = new DateTime(2002, 01, 01);
             StartSecondBlackout.Start = DateTime.Now;
